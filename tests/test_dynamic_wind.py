@@ -14,13 +14,14 @@ PORT_PARAM_DATA_ON = "[0, 2, 1, 2, 19, 136, 2, 1, 1]"
 def _create_test_objects(
     port_param_data=PORT_PARAM_DATA_OFF,
     *,
+    device_port=2,
     is_ai_controller=False,
 ):
     controller = SimpleNamespace(
         controller_id="controller-id",
         is_ai_controller=is_ai_controller,
     )
-    device = SimpleNamespace(controller=controller, device_port=2)
+    device = SimpleNamespace(controller=controller, device_port=device_port)
 
     service = Mock()
 
@@ -43,14 +44,19 @@ def test_parse_port_param_data():
     assert switch_module._parse_port_param_data("[0,1,2,3,4,5,6,7,8,9]") is None
 
 
-def test_dynamic_wind_suitability_uses_port_param_data():
-    entity, device, _service = _create_test_objects()
+def test_dynamic_wind_suitability_is_limited_to_port_2():
+    entity, device, _service = _create_test_objects(device_port=2)
     assert switch_module.__suitable_fn_dynamic_wind(entity, device)
 
-    entity, device, _service = _create_test_objects("invalid")
+    entity, device, _service = _create_test_objects(device_port=1)
     assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
 
-    entity, device, _service = _create_test_objects(is_ai_controller=True)
+    entity, device, _service = _create_test_objects("invalid", device_port=2)
+    assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
+
+    entity, device, _service = _create_test_objects(
+        device_port=2, is_ai_controller=True
+    )
     assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
 
 
