@@ -87,10 +87,7 @@ def __suitable_fn_device_setting_default(entity: ACInfinityEntity, device: ACInf
 
 
 def __suitable_fn_dynamic_wind(entity: ACInfinityEntity, device: ACInfinityDevice):
-    # Fork-specific behavior: the tested circulation fans are connected to port 2.
-    # AC Infinity reports loadType=0 and a nine-element portParamData array on all
-    # four ports, so neither field can identify the fan reliably.
-    if device.controller.is_ai_controller or device.device_port != 2:
+    if device.controller.is_ai_controller:
         return False
 
     value = entity.ac_infinity.get_device_setting(
