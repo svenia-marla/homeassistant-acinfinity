@@ -44,19 +44,17 @@ def test_parse_port_param_data():
     assert switch_module._parse_port_param_data("[0,1,2,3,4,5,6,7,8,9]") is None
 
 
-def test_dynamic_wind_suitability_is_limited_to_port_2():
-    entity, device, _service = _create_test_objects(device_port=2)
+@pytest.mark.parametrize("device_port", [1, 2, 3, 4])
+def test_dynamic_wind_suitability_on_all_ports(device_port):
+    entity, device, _service = _create_test_objects(device_port=device_port)
     assert switch_module.__suitable_fn_dynamic_wind(entity, device)
 
-    entity, device, _service = _create_test_objects(device_port=1)
+
+def test_dynamic_wind_suitability_rejects_invalid_or_ai_controller():
+    entity, device, _service = _create_test_objects("invalid")
     assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
 
-    entity, device, _service = _create_test_objects("invalid", device_port=2)
-    assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
-
-    entity, device, _service = _create_test_objects(
-        device_port=2, is_ai_controller=True
-    )
+    entity, device, _service = _create_test_objects(is_ai_controller=True)
     assert not switch_module.__suitable_fn_dynamic_wind(entity, device)
 
 
